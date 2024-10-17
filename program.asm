@@ -1,6 +1,6 @@
 push 0
 pop AX
-7:
+Next:
 pushr AX
 pushr AX
 mul
@@ -13,6 +13,6 @@ pop AX
 
 pushr AX 
 push 10
-jb 7:
+jb Next:
 
 hlt
