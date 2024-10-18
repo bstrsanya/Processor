@@ -15,9 +15,10 @@ int main()
 
     STR_labels labels[len_labels] = {};
     int code[100] = {};
+
     
     Read_Asm (code, labels, file_input);
-    
+    DumpMassive (code, 10);
 
     fwrite (code, sizeof (code[0]), sizeof (code) / sizeof (code[0]), file_output);
     

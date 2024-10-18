@@ -13,8 +13,15 @@ int main()
 
     stack_t stk = {};
     StackCtor (&stk, 10);
+
+    int ip = 0;
+    register int reg_massive[5] = {};
+    int op_mem[100] = {};
+    SPU spu = {.ip = 0, .RAM = op_mem, .reg = reg_massive, .code = code};
+
+
     
-    Run (file, &stk, code);
+    Run (file, &stk, &spu);
     
     fclose (file);
 }

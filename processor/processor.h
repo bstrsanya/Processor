@@ -3,7 +3,7 @@
 
 #include "stack.h"
 
-void Run (FILE *file, stack_t *stk, int* code);
+
 
 enum command 
 {
@@ -19,7 +19,6 @@ enum command
     out   = 105,
     mul   = 106,
     pop   = 107,
-    pushr = 108,
                   // прыжок, если
     jb    = 109,  // <
     ja    = 110,  // >
@@ -41,5 +40,15 @@ struct STR_labels {
     char name_mark[len_command] = "";
     int ptr_mark = -1;
 }; 
+
+struct SPU {
+    int ip;
+    int* RAM;
+    int* reg;
+    int* code;
+};
+
+void Run (FILE *file, stack_t *stk, SPU *spu);
+void DumpMassive (int* data, int size);
 
 #endif

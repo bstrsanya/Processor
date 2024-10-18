@@ -5,53 +5,17 @@
 #include "asm_func.h"
 #include "processor.h"
 
+#define CHECK(cmd, arg, code, ip) {if (strcmp (cmd, #arg) == 0) {code[ip++] = arg; continue;}}
+
 void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
 {
-    int ip = 0;
+    int ip = 0;  // вначале положить все команды в массив 
 
     while (1)
     {
+            
         char cmd[len_command] = "";
         fscanf (file_input, "%s", cmd);
-
-        if (strcmp (cmd, "push") == 0)
-        {
-            code[ip++] = push;
-            int arg = 0;
-            fscanf (file_input, "%d", &arg);
-            code[ip++] = arg;
-            continue;
-        }
-
-        if (strcmp (cmd, "sub") == 0)
-        {
-            code[ip++] = sub;
-            continue;
-        }
-
-        if (strcmp (cmd, "add") == 0)
-        {
-            code[ip++] = add;
-            continue;
-        }
-
-        if (strcmp (cmd, "DIV") == 0)
-        {
-            code[ip++] = DIV;
-            continue;
-        }
-
-        if (strcmp (cmd, "out") == 0)
-        {
-            code[ip++] = out;
-            continue;
-        }
-
-        if (strcmp (cmd, "mul") == 0)
-        {
-            code[ip++] = mul;
-            continue;
-        }
 
         if (strcmp (cmd, "hlt") == 0)
         {
@@ -59,25 +23,88 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
             break;
         }
 
-        if (strcmp (cmd, "pushr") == 0)
+        if (strcmp (cmd, "push") == 0)
         {
-            code[ip++] = pushr;
-            char num[10] = "";
-            fscanf (file_input, "%s", num);
-            
-            if (strcmp(num, "AX") == 0)
-                code[ip++] = AX;
-            
-            if (strcmp(num, "BX") == 0)
-                code[ip++] = BX;
-            
-            if (strcmp(num, "CX") == 0)
-                code[ip++] = CX;
-            
-            if (strcmp(num, "DX") == 0)
-                code[ip++] = DX;
+            code[ip++] = push;
+            char arg[30] = "";
+            fscanf (file_input, "%s", arg);
+
+            if (strchr (arg, '[') == NULL) 
+            {
+                if ((atoi (arg)) == 0)
+                {
+                    if (strchr (arg, '+') == NULL)    // push AX
+                    {
+                    code[ip++] = 2;
+                    CHECK (arg, AX, code, ip);
+                    CHECK (arg, BX, code, ip);
+                    CHECK (arg, CX, code, ip);
+                    CHECK (arg, DX, code, ip);
+                    }
+                    else                              // push AX+1
+                    {
+                        code[ip++] = 3;
+                        char reg_s[3] = "";
+                        reg_s[0] = arg[0];
+                        reg_s[1] = arg[1];
+                        arg[0] = ' '; arg[1] = ' '; arg[2] = ' ';
+                        code[ip++] = atoi (arg);
+                        CHECK (reg_s, AX, code, ip);
+                        CHECK (reg_s, BX, code, ip);
+                        CHECK (reg_s, CX, code, ip);
+                        CHECK (reg_s, DX, code, ip);
+                        
+                    }
+                }
+                else                                   // push 1
+                {
+                    code[ip++] = 1;
+                    code[ip++] = atoi (arg);
+                }
+            }
+            else                                        
+            {
+                char reg_s[3] = "";
+                reg_s[0] = arg[1];
+                reg_s[1] = arg[2];
+                arg[0] = ' ';
+                if (strchr (arg, '+') == NULL)         
+                {
+                    if ((atoi (arg)) == 0)             // push [CX]
+                    {
+                        code[ip++] = 6;
+                        CHECK (reg_s, AX, code, ip);
+                        CHECK (reg_s, BX, code, ip);
+                        CHECK (reg_s, CX, code, ip);
+                        CHECK (reg_s, DX, code, ip);
+                    }
+                    else                               // push [1]
+                    {
+                        code[ip++] = 5;
+                        code[ip++] = atoi (arg);
+                        
+                    }
+                }
+                else                                   // push CX+5
+                {
+                    arg[1] = ' '; arg[2] = ' '; arg[3] = ' ';
+                    int num = atoi (arg);
+                    code[ip++] = 7;
+                    code[ip++] = num;
+                    CHECK (reg_s, AX, code, ip);
+                    CHECK (reg_s, BX, code, ip);
+                    CHECK (reg_s, CX, code, ip);
+                    CHECK (reg_s, DX, code, ip);
+                }
+            }
             continue;
         }
+
+        CHECK(cmd, sub, code, ip);
+        CHECK(cmd, add, code, ip);
+        CHECK(cmd, DIV, code, ip);
+        CHECK(cmd, out, code, ip);
+        CHECK(cmd, mul, code, ip);
 
         if (strcmp (cmd, "pop") == 0)
         {

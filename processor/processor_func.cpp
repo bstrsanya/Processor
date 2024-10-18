@@ -2,21 +2,21 @@
 
 #include "processor.h"
 
-void Run (FILE* file, stack_t *stk, int* code)
+void Run (FILE* file, stack_t *stk, SPU *spu)
 {
-    int ip = 0;
-    register int reg[5] = {};
+    
     
     while (1)
     {
-        int cmd = code[ip++];
+        //DumpMassive (spu->reg, 5);
+        int cmd = spu->code[(spu->ip)++];
 
         if (cmd == hlt) break;
 
         switch (cmd) {
 
             case push: {
-                int arg = code[ip++];
+                int arg = spu->code[(spu->ip)++];
                 StackPush (stk, arg);
                 break; }
 
@@ -50,71 +50,71 @@ void Run (FILE* file, stack_t *stk, int* code)
                 break; }
 
             case pushr: {
-                StackPush (stk, reg[code[ip++]]);
+                StackPush (stk, spu->reg[spu->code[(spu->ip)++]]);
                 break; }
             
             case pop: {
                 int a = 0; StackPop (stk, &a);
-                reg[code[ip++]] = a;
+                spu->reg[spu->code[(spu->ip)++]] = a;
                 break; }
 
             case jb: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b < a) {
-                    int new_pointer = code[ip];
-                    ip = new_pointer; }
-                else ip++;
+                    int new_pointer = spu->code[(spu->ip)];
+                    (spu->ip) = new_pointer; }
+                else (spu->ip)++;
                 break; }
 
             case ja: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b > a) {
-                    int new_pointer = code[ip];
-                    ip = new_pointer; }
-                else ip++;
+                    int new_pointer = spu->code[(spu->ip)];
+                    (spu->ip) = new_pointer; }
+                else (spu->ip)++;
                 break; }
 
             case jae: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b >= a) {
-                    int new_pointer = code[ip];
-                    ip = new_pointer; }
-                else ip++;
+                    int new_pointer = spu->code[(spu->ip)];
+                    (spu->ip) = new_pointer; }
+                else (spu->ip)++;
                 break; }
 
             case jbe: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b <= a) {
-                    int new_pointer = code[ip];
-                    ip = new_pointer; }
-                else ip++;
+                    int new_pointer = spu->code[(spu->ip)];
+                    (spu->ip) = new_pointer; }
+                else (spu->ip)++;
                 break; }
             
             case je: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b == a) {
-                    int new_pointer = code[ip];
-                    ip = new_pointer; }
-                else ip++;
+                    int new_pointer = spu->code[(spu->ip)];
+                    (spu->ip) = new_pointer; }
+                else (spu->ip)++;
                 break; }
 
             case jne: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b != a) {
-                    int new_pointer = code[ip];
-                    ip = new_pointer; }
-                else ip++;
+                    int new_pointer = spu->code[(spu->ip)];
+                    (spu->ip) = new_pointer; }
+                else (spu->ip)++;
                 break; }
 
             case jmp: {
-                int new_pointer = code[ip];
-                ip = new_pointer;
+                int new_pointer = spu->code[(spu->ip)];
+                (spu->ip) = new_pointer;
                 break; }
 
             default: {
