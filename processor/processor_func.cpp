@@ -4,8 +4,6 @@
 
 void Run (FILE* file, stack_t *stk, SPU *spu)
 {
-    
-    
     while (1)
     {
         //DumpMassive (spu->reg, 5);
@@ -47,10 +45,6 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 StackPush (stk, (int) b * a);
-                break; }
-
-            case pushr: {
-                StackPush (stk, spu->reg[spu->code[(spu->ip)++]]);
                 break; }
             
             case pop: {

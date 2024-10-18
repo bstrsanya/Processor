@@ -7,6 +7,8 @@
 
 int main()
 {
+    //Fopen чтобы проверка была автоматом возвращать указатель
+    // динамическая память
     FILE *file_input = fopen ("program.asm", "rb");
     FILE *file_output = fopen ("program_code.bin", "wb");
 
@@ -15,7 +17,6 @@ int main()
 
     STR_labels labels[len_labels] = {};
     int code[100] = {};
-
     
     Read_Asm (code, labels, file_input);
     DumpMassive (code, 10);
