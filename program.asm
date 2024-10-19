@@ -1,5 +1,3 @@
-push [CX+5]
-push 5
-hlt
-
-
+PUSH [CX+5]
+DIV
+HLT
