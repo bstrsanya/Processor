@@ -6,25 +6,32 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
 {
     while (1)
     {
-        //DumpMassive (spu->reg, 5);
+
         int cmd = spu->code[(spu->ip)++];
 
-        if (cmd == hlt) break;
+        if (cmd == HLT) break;
 
         switch (cmd) {
 
-            case push: {
-                int arg = spu->code[(spu->ip)++];
-                StackPush (stk, arg);
+            case PUSH: {
+                int* arg = GetArg (spu);
+                StackPush (stk, *arg);
+                spu->reg[0] = 0;
                 break; }
 
-            case sub: {
+            case POP: {
+                int a = 0; StackPop (stk, &a);
+                int *arg = GetArg (spu);
+                *arg = a;
+                break; }
+
+            case SUB: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 StackPush (stk, b - a);
                 break; }
   
-            case add: {
+            case ADD: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 StackPush (stk, a + b);
@@ -36,23 +43,18 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 StackPush (stk, (int) b / a);
                 break; }
             
-            case out: {
+            case OUT: {
                 int a = 0; StackPop (stk, &a);
                 printf ("res = %d\n", a);
                 break; }
         
-            case mul: {
+            case MUL: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 StackPush (stk, (int) b * a);
                 break; }
-            
-            case pop: {
-                int a = 0; StackPop (stk, &a);
-                spu->reg[spu->code[(spu->ip)++]] = a;
-                break; }
 
-            case jb: {
+            case JB: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b < a) {
@@ -61,7 +63,7 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 else (spu->ip)++;
                 break; }
 
-            case ja: {
+            case JA: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b > a) {
@@ -70,7 +72,7 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 else (spu->ip)++;
                 break; }
 
-            case jae: {
+            case JAE: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b >= a) {
@@ -79,7 +81,7 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 else (spu->ip)++;
                 break; }
 
-            case jbe: {
+            case JBE: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b <= a) {
@@ -88,7 +90,7 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 else (spu->ip)++;
                 break; }
             
-            case je: {
+            case JE: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b == a) {
@@ -97,7 +99,7 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 else (spu->ip)++;
                 break; }
 
-            case jne: {
+            case JNE: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
                 if (b != a) {
@@ -106,7 +108,7 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 else (spu->ip)++;
                 break; }
 
-            case jmp: {
+            case JMP: {
                 int new_pointer = spu->code[(spu->ip)];
                 (spu->ip) = new_pointer;
                 break; }
@@ -116,4 +118,31 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 break; }
         }
     }
+}
+
+int* GetArg (SPU *spu)
+{
+    int argType = spu->code[(spu->ip)++];
+    int* ptr = spu->reg;
+    int arg_reg = 0;
+    int argValue = 0;
+
+    if (argType & 1) 
+    {
+        *ptr = spu->code[ (spu->ip)++ ];
+    }
+
+    if (argType & 2) 
+    {
+        ptr = & ( spu->reg[ (spu->code[(spu->ip)++]) ] );
+        arg_reg = *ptr; // значение CX
+        *ptr += spu->reg[0];
+    }
+    
+    if (argType & 4) 
+    {
+        ptr = & ( spu->RAM[arg_reg + spu->reg[0]] );
+    }
+      
+    return ptr;
 }

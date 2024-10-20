@@ -3,8 +3,6 @@
 
 #include "stack.h"
 
-
-
 enum command 
 {
     AX    = 1,
@@ -42,7 +40,7 @@ const int len_labels = 20;
 struct STR_labels {
     int free = 0;                // если ноль значит свободное место, если 1 значит занято
     char name_mark[len_command] = "";
-    int ptr_mark = -1;
+    int  ptr_mark = -1;             // место свободно, если метка стоит на -1
 }; 
 
 struct SPU {
@@ -54,5 +52,7 @@ struct SPU {
 
 void Run (FILE *file, stack_t *stk, SPU *spu);
 void DumpMassive (int* data, int size);
+int* GetArg (SPU *spu);
+int* GetArg_for_pop (SPU *spu);
 
 #endif

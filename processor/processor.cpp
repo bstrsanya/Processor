@@ -19,9 +19,10 @@ int main()
     int op_mem[100] = {};
     SPU spu = {.ip = 0, .RAM = op_mem, .reg = reg_massive, .code = code};
 
-
-    
     Run (file, &stk, &spu);
+
+    DumpMassive (spu.reg, 5);
+    DumpMassive (spu.RAM, 10);
     
     fclose (file);
 }

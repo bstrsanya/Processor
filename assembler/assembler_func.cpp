@@ -25,10 +25,11 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
     while (1)
     {
         command code_cmd = ReadCommand (file_input, code, &ip);
+
         if (code_cmd == err) break;
         switch (code_cmd) {
         
-            case (PUSH): {
+            case (PUSH): case (POP): {
                 char arg[30] = "";
                 fscanf (file_input, "%s", arg);
 
@@ -37,23 +38,10 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
                 int im_const = MyAtoi (arg, strlen (arg));
 
                 WorkArg (arg, &n_push, &n_reg, &im_const, code, &ip);  
-
-                break; }
-
-            case (POP): {
-                char arg[30] = "";
-                fscanf (file_input, "%s", arg);
-
-                int n_push   = 0;
-                int n_reg    = 0;
-                int im_const = MyAtoi (arg, strlen (arg));
-
-                WorkArg (arg, &n_push, &n_reg, &im_const, code, &ip);
-                if (n_push = 1) {printf ("pop %d - illegal operation\n", im_const); assert (0);}
+                if ((code_cmd == POP) && (n_push == 1))  {printf ("pop %d - illegal operation\n", im_const); assert (0);}
                 break; }
 
             case (MARK): {
-
                 char cmd[len_command] = "";
                 fscanf (file_input, "%s", cmd);
                 cmd [(strchr (cmd, ':') - &cmd[0])] = ' ';
@@ -69,7 +57,7 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
                 }
                 break;}
 
-            case (JB): case (JBE): { //дописать все прыжки
+            case (JB): case (JBE): case (JA): case (JAE): case (JE): case (JNE): case (JMP): {
                 FindMark (file_input, code, &ip, labels);
                 break; }
 
@@ -152,7 +140,7 @@ command ReadCommand (FILE* file_input, int* code, int* ip)
     CHECK (cmd, HLT, code, ip);
 
 
-    if (strchr (cmd, ':') != NULL) return MARK;
+    if (strcmp (cmd, "m") == 0) return MARK;
     
     printf ("syntax error - %s\n", cmd); return bad_str;
 }
