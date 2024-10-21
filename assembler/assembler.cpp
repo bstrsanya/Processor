@@ -19,7 +19,13 @@ int main()
     int code[100] = {};
     
     Read_Asm (code, labels, file_input);
-    //DumpMassive (code, 10);
+    //DumpMassive (code, 20);
+    //printf ("%s - %d\n", labels[0].name_mark, labels[0].ptr_mark);
+    if (fseek (file_input, 0, SEEK_SET)) printf ("error fssek\n");
+    Read_Asm (code, labels, file_input);
+    //DumpMassive (code, 20);
+    //printf ("%s - %d\n", labels[0].name_mark, labels[0].ptr_mark);
+    
 
     fwrite (code, sizeof (code[0]), sizeof (code) / sizeof (code[0]), file_output);
     

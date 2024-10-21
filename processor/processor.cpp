@@ -21,8 +21,9 @@ int main()
 
     Run (file, &stk, &spu);
 
-    DumpMassive (spu.reg, 5);
-    DumpMassive (spu.RAM, 10);
+    //DumpMassive (spu.reg, 5);
+    //DumpMassive (spu.RAM, 10);
+    Paint (spu.RAM, 9, 9);
     
     fclose (file);
 }

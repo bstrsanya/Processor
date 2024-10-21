@@ -47,9 +47,8 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
                 cmd [(strchr (cmd, ':') - &cmd[0])] = ' ';
                 for (int count = 0; count < len_labels; count++)
                 {
-                    if (labels[count].free == 0)
+                    if (labels[count].ptr_mark == -1)
                     {
-                        labels[count].free = 1;
                         strcpy (labels[count].name_mark, cmd);
                         labels[count].ptr_mark = ip;
                         break;
@@ -86,6 +85,7 @@ void FindMark (FILE* file_input, int* code, int* ip, struct STR_labels* labels)
     }
     else
         code[(*ip)++] = atoi (metka);
+        
 }
 
 int MyAtoi (char* str, int size)
@@ -138,7 +138,6 @@ command ReadCommand (FILE* file_input, int* code, int* ip)
     CHECK (cmd, JNE, code, ip);
     CHECK (cmd, JMP, code, ip);
     CHECK (cmd, HLT, code, ip);
-
 
     if (strcmp (cmd, "m") == 0) return MARK;
     

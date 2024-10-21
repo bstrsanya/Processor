@@ -14,3 +14,13 @@ void DumpMassive (int* data, int size)
     putchar ('\n');
 
 }
+
+void Paint (int* data, int x, int y)
+{
+    for (int i = 0; i < y; i++)
+    {
+        for (int j = 0; j < x; j++)
+            printf ("%3d", data[y*i+j]);
+    putchar ('\n');
+    }
+}
