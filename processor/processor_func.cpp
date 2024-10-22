@@ -2,11 +2,10 @@
 
 #include "processor.h"
 
-void Run (FILE* file, stack_t *stk, SPU *spu)
+void Run (stack_t *stk, SPU *spu)
 {
     while (1)
     {
-
         int cmd = spu->code[(spu->ip)++];
 
         if (cmd == HLT) break;
@@ -108,7 +107,7 @@ void Run (FILE* file, stack_t *stk, SPU *spu)
                 else (spu->ip)++;
                 break; }
 
-            case JMP: {
+            case JMP: case RET: {
                 int new_pointer = spu->code[(spu->ip)];
                 (spu->ip) = new_pointer;
                 break; }
@@ -125,12 +124,8 @@ int* GetArg (SPU *spu)
     int argType = spu->code[(spu->ip)++];
     int* ptr = spu->reg;
     int arg_reg = 0;
-    int argValue = 0;
 
-    if (argType & 1) 
-    {
-        *ptr = spu->code[ (spu->ip)++ ];
-    }
+    if (argType & 1) *ptr = spu->code[ (spu->ip)++ ];
 
     if (argType & 2) 
     {
@@ -139,10 +134,7 @@ int* GetArg (SPU *spu)
         *ptr += spu->reg[0];
     }
     
-    if (argType & 4) 
-    {
-        ptr = & ( spu->RAM[arg_reg + spu->reg[0]] );
-    }
-      
+    if (argType & 4) ptr = & ( spu->RAM[arg_reg + spu->reg[0]] );
+
     return ptr;
 }

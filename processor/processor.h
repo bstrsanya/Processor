@@ -17,7 +17,7 @@ enum command
     OUT   = 105,
     MUL   = 106,
     POP   = 107,
-    MARK  = 108,
+    LABEL  = 108,
                   // прыжок, если
     JB    = 109,  // <
     JA    = 110,  // >
@@ -27,19 +27,24 @@ enum command
     JNE   = 114,  // != 
     JMP   = 115,  // прыжок всегда
     JUMP  = 116,  // существует какой-то прыжок
+    CALL  = 117,
+    RET   = 118,
 
-    HLT   = -1,
-    err   = -2,
-    bad_str = -3
-
+    HLT     = -1,
+    err     = -2,
+    bad_str = -3,
+    len_code  = 1000,
+    bit_mem = 4,
+    bit_reg = 2,
+    bit_con = 1
 };
 
 const int len_command = 30;
 const int len_labels = 20;
 
 struct STR_labels {
-    char name_mark[len_command] = "";
-    int  ptr_mark = -1;             // место свободно, если метка стоит на -1, если не определена но занята err
+    char name_label[len_command] = "";
+    int  ptr_label = -1;    // место свободно, если метка стоит на -1, если не определена но занята err
 }; 
 
 struct SPU {
@@ -49,7 +54,7 @@ struct SPU {
     int* code;
 };
 
-void Run (FILE *file, stack_t *stk, SPU *spu);
+void Run (stack_t *stk, SPU *spu);
 void DumpMassive (int* data, int size);
 int* GetArg (SPU *spu);
 void Paint (int* data, int x, int y);
