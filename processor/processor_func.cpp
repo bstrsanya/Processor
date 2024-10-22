@@ -6,6 +6,7 @@ void Run (stack_t *stk, SPU *spu)
 {
     while (1)
     {
+        DumpMassive (spu->reg, 5);
         int cmd = spu->code[(spu->ip)++];
 
         if (cmd == HLT) break;
@@ -125,16 +126,18 @@ int* GetArg (SPU *spu)
     int* ptr = spu->reg;
     int arg_reg = 0;
 
-    if (argType & 1) *ptr = spu->code[ (spu->ip)++ ];
+    if (argType & 1) *ptr = spu->code[ (spu->ip)++ ]; // в ячейку нулевого регистра константу
 
     if (argType & 2) 
     {
-        ptr = & ( spu->reg[ (spu->code[(spu->ip)++]) ] );
-        arg_reg = *ptr; // значение CX
-        *ptr += spu->reg[0];
+        if (*ptr == 0)
+            {ptr = &(spu->reg[ (spu->code[(spu->ip)++]) ]); }
+            
+        else
+            *ptr += spu->reg[ (spu->code[(spu->ip)++]) ];
     }
     
-    if (argType & 4) ptr = & ( spu->RAM[arg_reg + spu->reg[0]] );
+    if (argType & 4) ptr = & ( spu->RAM[*ptr] );
 
     return ptr;
 }

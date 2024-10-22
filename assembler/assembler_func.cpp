@@ -114,7 +114,7 @@ void PutLabel (FILE *file_input, STR_labels *labels, int* ip)
 int MyAtoi (char* str, int size)
 {
     for (int i = 0; i < size; i++)
-        if (isdigit (str[0])) return atoi (&str[i]);
+        if (isdigit (str[i])) return atoi (&str[i]);
 
     return -1;   
 }
@@ -129,7 +129,6 @@ void WorkArg (char* arg, int* n_push, int* n_reg, int* im_const, int* code, int*
     if (strstr (arg, "DX") != NULL) {*n_push |= bit_reg; *n_reg = DX;}
 
     if (*im_const != -1) *n_push |= bit_con;
-    
     code[(*ip)++] = *n_push;
     if (*im_const != -1) code[(*ip)++] = *im_const;
     if (*n_reg != 0) code[(*ip)++] = *n_reg; 
