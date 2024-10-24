@@ -29,18 +29,28 @@ enum command
     JUMP  = 116,  // существует какой-то прыжок
     CALL  = 117,
     RET   = 118,
+    IN    = 119,
+    SQRT  = 120,
 
-    HLT     = -1,
-    err     = -2,
-    bad_str = -3,
+    INF      = 121,
+    NOROOTS  = 122,
+    ONEROOTS = 123,
+    TWOROOTS = 124,
+
+    HLT       = -1,
+    err       = -2,
+    bad_str   = -3,
     len_code  = 1000,
-    bit_mem = 4,
-    bit_reg = 2,
-    bit_con = 1
+    MASK_MEM  = 4, 
+    MASK_REG  = 2,
+    MASK_CON  = 1
 };
 
 const int len_command = 30;
-const int len_labels = 20;
+const int len_labels  = 20;
+const int len_ram     = 20;
+const int len_reg     = 5;
+const int size_stack  = 10;
 
 struct STR_labels {
     char name_label[len_command] = "";

@@ -1,3 +1,0 @@
-PUSH [CX+5]
-DIV
-HLT

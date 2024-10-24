@@ -15,27 +15,20 @@
 void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
 {
     stack_t addr_trans = {};
-    StackCtor (&addr_trans, 10);
+    StackCtor (&addr_trans, size_stack);
 
-    int ip = 0;  // вначале положить все команды в массив 
-        // заканчивать прогу когда конец файла, а не hlt +
-        // hex-формат +
-        // WSL  !!! поиграться с памятью 
-        // address sanitize (должен идти с WSL)
-        // !расширение! для WSL vs.code
-        // TODO: another function with strcmps + switch case +
-        // при увеличении регистров не менять прогу
-        // switch (CODE_CMD):
-        // case PUS
+    int ip = 0; 
     while (1)
     {
         //DumpMassive (code, 30);
-        command code_cmd = Compilation_Command (file_input, code, &ip);
+        char cmd[len_command] = "";
+        command code_cmd = Compilation_Command (file_input, code, &ip, cmd);
 
         if (code_cmd == err) break;
         switch (code_cmd) {
         
-            case (PUSH): case (POP): {
+            case (PUSH): 
+            case (POP): {
                 char arg[len_command] = "";
                 fscanf (file_input, "%s", arg);
 
@@ -48,10 +41,16 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
                 break; }
 
             case (LABEL): {
-                PutLabel (file_input, labels, &ip);
+                PutLabel (file_input, labels, &ip, cmd);
                 break; }
 
-            case (JB): case (JBE): case (JA): case (JAE): case (JE): case (JNE): case (JMP): {
+            case (JB): 
+            case (JBE): 
+            case (JA): 
+            case (JAE): 
+            case (JE): 
+            case (JNE): 
+            case (JMP): {
                 if (!Find_Label (file_input, code, &ip, labels)) code[ip++] = -1;
                 break; }
 
@@ -66,39 +65,36 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
                 code[ip++] = b; 
                 break; }
 
-
             case (bad_str): {
-                printf ("Try aggain\n");
+                printf ("Try again\n");
                 assert (0); }
+            
         }
     }
 }
 
 int Find_Label (FILE* file_input, int* code, int* ip, struct STR_labels* labels)
 {
-    char metka[len_command] = "";
-    fscanf (file_input, "%s", metka);
+    char label[len_command] = "";
+    fscanf (file_input, "%s", label);
 
-    if (strchr (metka, ':') != NULL)
+    if (strchr (label, ':') != NULL)
     {
-        metka [(int) (strchr (metka, ':') - &metka[0])] = ' ';
+        label [(int) (strchr (label, ':') - &label[0])] = ' ';
         for (int count = 0; count < len_labels; count++)
-            if (strcmp (metka, labels[count].name_label) == 0)
+            if (strcmp (label, labels[count].name_label) == 0)
             {
                 code[(*ip)++] = labels[count].ptr_label;
                 return 1;
             }
     }
     else
-        {code[(*ip)++] = atoi (metka); return 1;}
+        {code[(*ip)++] = atoi (label); return 1;}
     return 0;
 }
 
-void PutLabel (FILE *file_input, STR_labels *labels, int* ip)
+void PutLabel (FILE *file_input, STR_labels *labels, int* ip, char* cmd)
 {
-    char cmd[len_command] = "";
-    fscanf (file_input, "%s", cmd);
-
     cmd [(strchr (cmd, ':') - &cmd[0])] = ' ';
     for (int count = 0; count < len_labels; count++)
     {
@@ -121,42 +117,49 @@ int MyAtoi (char* str, int size)
 
 void WorkArg (char* arg, int* n_push, int* n_reg, int* im_const, int* code, int* ip)
 {
-    if ((strchr (arg, '[') != NULL) && (strchr (arg, ']') != NULL)) *n_push |= bit_mem;
+    if ((strchr (arg, '[') != NULL) && (strchr (arg, ']') != NULL)) *n_push |= MASK_MEM;
 
-    if (strstr (arg, "AX") != NULL) {*n_push |= bit_reg; *n_reg = AX;}
-    if (strstr (arg, "BX") != NULL) {*n_push |= bit_reg; *n_reg = BX;}
-    if (strstr (arg, "CX") != NULL) {*n_push |= bit_reg; *n_reg = CX;}
-    if (strstr (arg, "DX") != NULL) {*n_push |= bit_reg; *n_reg = DX;}
-
-    if (*im_const != -1) *n_push |= bit_con;
+    if (strstr (arg, "AX") != NULL) {*n_push |= MASK_REG; *n_reg = AX;}
+    if (strstr (arg, "BX") != NULL) {*n_push |= MASK_REG; *n_reg = BX;}
+    if (strstr (arg, "CX") != NULL) {*n_push |= MASK_REG; *n_reg = CX;}
+    if (strstr (arg, "DX") != NULL) {*n_push |= MASK_REG; *n_reg = DX;}
+    //ax bx 
+    //r%cx
+    if (*im_const != -1) *n_push |= MASK_CON;
     code[(*ip)++] = *n_push;
     if (*im_const != -1) code[(*ip)++] = *im_const;
     if (*n_reg != 0) code[(*ip)++] = *n_reg; 
 }
 
-command Compilation_Command (FILE* file_input, int* code, int* ip)
+command Compilation_Command (FILE* file_input, int* code, int* ip, char* cmd)
 {
-    char cmd[len_command] = "";
     if (fscanf (file_input, "%s", cmd) == EOF) return err;
 
     CHECK (cmd, PUSH, code, ip);
-    CHECK (cmd, POP, code, ip);
-    CHECK (cmd, SUB, code, ip);
-    CHECK (cmd, ADD, code, ip);
-    CHECK (cmd, DIV, code, ip);
-    CHECK (cmd, OUT, code, ip);
-    CHECK (cmd, MUL, code, ip);
-    CHECK (cmd, JB, code, ip);
-    CHECK (cmd, JA, code, ip);
-    CHECK (cmd, JAE, code, ip);
-    CHECK (cmd, JBE, code, ip);
-    CHECK (cmd, JE, code, ip);
-    CHECK (cmd, JNE, code, ip);
-    CHECK (cmd, JMP, code, ip);
-    CHECK (cmd, HLT, code, ip);
-    CHECK (cmd, RET, code, ip);
+    CHECK (cmd, POP,  code, ip);
+    CHECK (cmd, SUB,  code, ip);
+    CHECK (cmd, ADD,  code, ip);
+    CHECK (cmd, DIV,  code, ip);
+    CHECK (cmd, OUT,  code, ip);
+    CHECK (cmd, MUL,  code, ip);
+    CHECK (cmd, JB,   code, ip);
+    CHECK (cmd, JA,   code, ip);
+    CHECK (cmd, JAE,  code, ip);
+    CHECK (cmd, JBE,  code, ip);
+    CHECK (cmd, JE,   code, ip);
+    CHECK (cmd, JNE,  code, ip);
+    CHECK (cmd, JMP,  code, ip);
+    CHECK (cmd, HLT,  code, ip);
+    CHECK (cmd, RET,  code, ip);
+    CHECK (cmd, IN,   code, ip);
+    CHECK (cmd, SQRT, code, ip);
+
+    CHECK (cmd, INF, code, ip);
+    CHECK (cmd, NOROOTS, code, ip);
+    CHECK (cmd, ONEROOTS, code, ip);
+    CHECK (cmd, TWOROOTS, code, ip);
     
-    if (strcmp (cmd, "m") == 0) return LABEL;
+    if (strchr (cmd, ':') != NULL) return LABEL;
     if (strcmp (cmd, "CALL") == 0) return CALL;
     
     printf ("syntax error - %s\n", cmd); return bad_str;
