@@ -23,7 +23,7 @@ int main()
 
     if (fseek (file_input, 0, SEEK_SET)) printf ("error fseek\n");
     Read_Asm (code, labels, file_input);
-    //DumpMassive (code, 35);
+    //DumpMassive (code, 70);
 
     fwrite (code, sizeof (code[0]), sizeof (code) / sizeof (code[0]), file_output);
     

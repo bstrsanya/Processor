@@ -5,6 +5,8 @@
 
 void Run (stack_t *stk, SPU *spu)
 {
+    stack_t stk_func = {};
+    StackCtor (&stk_func, 10);
     int isEnd = 1;
     while (isEnd)
     {
@@ -131,43 +133,27 @@ void Run (stack_t *stk, SPU *spu)
                 else (spu->ip)++; }
                 break; 
 
-            case JMP: 
-            case RET: {
+            case JMP:  {
                 int new_pointer = spu->code[(spu->ip)];
                 (spu->ip) = new_pointer;
                 break; }
 
-            case INF: {
-                printf ("INF\n");
-                isEnd = 0;
-                break; }
-            
-            case NOROOTS: {
-                printf ("NOROOTS\n");
-                isEnd = 0;
+            case RET: {
+                int a = 0;
+                StackPop (&stk_func, &a);
+                spu->ip = a;
                 break; }
 
-            case ONEROOTS: {
-                int a = 0;
-                StackPop (stk, &a);
-                printf ("ONEROOTS: x = %d\n", a);
-                isEnd = 0;
-                break; }
-            
-            case TWOROOTS: {
-                int a = 0;
-                int b = 0;
-                StackPop (stk, &b);
-                StackPop (stk, &a);
-                printf ("TWOROOTS: x1 = %d; x2 = %d\n", a, b);
-                isEnd = 0;
+            case CALL: {
+                StackPush (&stk_func, spu->ip + 1);
+                spu->ip = spu->code[spu->ip];
                 break; }
 
             // case DRAW_CIRCLE:
             // case cos:
 
             default: {
-                printf ("Syntax error: '%s'\n", cmd);
+                printf ("Syntax error: '%d'\n", cmd);
                 break; }
         }
     }

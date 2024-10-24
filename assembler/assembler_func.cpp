@@ -1,17 +1,15 @@
 #include <stdio.h>
 #include <strings.h>
+#include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
-
 
 #include "asm_func.h"
 #include "processor.h"
 
 #define CHECK(cmd, arg, code, ip) {if (strcmp (cmd, #arg) == 0) {code[(*ip)++] = arg; return arg;}}
-//#define CHECK1(arg, str, n_push, n_reg) {if (strstr (arg, #str) != NULL) {n_push |= 2; n_reg = str;}
-//#define CHECK2(cmd, arg, code, ip, file_input, labels) {if (strcmp (cmd, #arg) == 0) {code[ip++] = arg; FindMark (file_input, code, &ip, labels); continue;}}
-// fread -> sscanf
+
 void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
 {
     stack_t addr_trans = {};
@@ -55,10 +53,10 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
                 break; }
 
             case (CALL): {
-                code[ip++] = JMP;
+                code[ip++] = CALL;
+                StackPush (&addr_trans, ip+1);
                 if (!Find_Label (file_input, code, &ip, labels)) code[ip++] = -1; 
-                StackPush (&addr_trans, code[ip-1]); 
-                break;}
+                break; }
 
             case (RET): {
                 int b = 0; StackPop (&addr_trans, &b);
@@ -67,8 +65,7 @@ void Read_Asm (int* code, struct STR_labels* labels, FILE* file_input)
 
             case (bad_str): {
                 printf ("Try again\n");
-                assert (0); }
-            
+                assert (0);  }
         }
     }
 }
@@ -153,14 +150,10 @@ command Compilation_Command (FILE* file_input, int* code, int* ip, char* cmd)
     CHECK (cmd, RET,  code, ip);
     CHECK (cmd, IN,   code, ip);
     CHECK (cmd, SQRT, code, ip);
-
-    CHECK (cmd, INF, code, ip);
-    CHECK (cmd, NOROOTS, code, ip);
-    CHECK (cmd, ONEROOTS, code, ip);
-    CHECK (cmd, TWOROOTS, code, ip);
     
     if (strchr (cmd, ':') != NULL) return LABEL;
     if (strcmp (cmd, "CALL") == 0) return CALL;
     
-    printf ("syntax error - %s\n", cmd); return bad_str;
+    printf ("syntax error - %s\n", cmd); 
+    return bad_str;
 }

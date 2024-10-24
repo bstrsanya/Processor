@@ -16,7 +16,7 @@ int main()
     StackCtor (&stk, size_stack); //TODO: 
 
     int ip = 0;
-    register int reg_massive[len_reg] = {};
+    int reg_massive[len_reg] = {};
     int op_mem[len_ram] = {};
     SPU spu = {.ip = 0, .RAM = op_mem, .reg = reg_massive, .code = code};
 

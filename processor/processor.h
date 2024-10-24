@@ -32,11 +32,6 @@ enum command
     IN    = 119,
     SQRT  = 120,
 
-    INF      = 121,
-    NOROOTS  = 122,
-    ONEROOTS = 123,
-    TWOROOTS = 124,
-
     HLT       = -1,
     err       = -2,
     bad_str   = -3,
