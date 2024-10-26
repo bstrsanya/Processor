@@ -3,28 +3,27 @@
 
 #include "processor.h"
 
-int main() 
+int main(int argc, const char *argv[]) 
 {
-    FILE *file = fopen ("program_code.bin", "rb");
-    if (file == NULL) printf ("Errors open file\n");
-
-    int code[len_code] = {};
-    fread (code, sizeof (code[0]), sizeof (code) / sizeof (code[0]), file);
-    fclose (file);
+    if (argc != 2) printf ("More arg\n");
+    int code[len_code]; //TODO chcek argc
+    MyFread (argv[1], "rb", code); //TODO не называй это своим fread //TODO const num of file input - not use this naming
 
     stack_t stk = {};
-    StackCtor (&stk, size_stack); //TODO: 
+    StackCtor (&stk, size_stack);
 
-    int ip = 0;
+    stack_t stk_func = {};
+    StackCtor (&stk_func, 100);
+
     int reg_massive[len_reg] = {};
     int op_mem[len_ram] = {};
     SPU spu = {.ip = 0, .RAM = op_mem, .reg = reg_massive, .code = code};
 
-    Run (&stk, &spu);
-
-    //DumpMassive (spu.reg, 5);
-    //DumpMassive (spu.RAM, 10);
-    //Paint (spu.RAM, 9, 9);    
+    Run (&stk, &stk_func, &spu);
+    //TODO return 0;
 }
+
+
+
 
 
