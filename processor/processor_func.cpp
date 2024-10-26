@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "processor.h"
 
-void Run (stack_t *stk, stack_t *stk_func, SPU *spu)
+void Run (stack_t* stk, stack_t* stk_func, SPU* spu)
 {
     int isEnd = 1;
     while (isEnd)
@@ -16,7 +17,7 @@ void Run (stack_t *stk, stack_t *stk_func, SPU *spu)
                 break; }
 
             case PUSH: {
-                int* arg = GetArg (spu);
+                int* arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
                 StackPush (stk, *arg);
                 spu->reg[0] = 0;
                 break; }
@@ -24,9 +25,16 @@ void Run (stack_t *stk, stack_t *stk_func, SPU *spu)
             case POP:
             {
                 int a = 0; StackPop (stk, &a);
-                int *arg = GetArg (spu);
+                int *arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
                 *arg = a;
                 break;
+            }
+
+            case PUTC:
+            {
+                int a = 0; StackPop (stk, &a);
+                printf ("%c\n", a);    
+                break;           
             }
 
             case IN: {
@@ -57,7 +65,8 @@ void Run (stack_t *stk, stack_t *stk_func, SPU *spu)
             case DIV: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
-                StackPush (stk, (int) b / a); //TODO check a - is 0
+                if (a == 0) printf ("DIV ON ZERO\n"); // TODO assert -> return 
+                else StackPush (stk, (int) b / a); 
                 break; }
 
             case OUT: {
@@ -148,34 +157,35 @@ void Run (stack_t *stk, stack_t *stk_func, SPU *spu)
                 break; }
 
             case DRAW: {
-                Paint (spu->RAM, square, square);
+                Paint (spu->RAM, SQUARE, SQUARE);
                 break; }
 
             default: {
-                printf ("Syntax error: '%d'\n", cmd);
+                printf ("Syntax error: [%d]\n", cmd);
+                isEnd = 0;
                 break; }
         }
     }
 }
 
-int* GetArg (SPU *spu)
+int* GetArg (int* reg, int* RAM, int* code, int* ip)
 {
-    int argType = spu->code[(spu->ip)++];
-    int* ptr = spu->reg;
+    int argType = code[(*ip)++];
+    int* ptr = reg;
 
     if (argType & MASK_CON)
-        *ptr = spu->code[ (spu->ip)++ ];
+        *ptr = code[ (*ip)++ ];
 
     if (argType & MASK_REG)
     {
         if (*ptr == 0)
-            {ptr = &(spu->reg[ (spu->code[(spu->ip)++]) ]); }
+            {ptr = &(reg[ (code[(*ip)++]) ]); }
         else
-            *ptr += spu->reg[ (spu->code[(spu->ip)++]) ];
+            *ptr += reg[ (code[(*ip)++]) ];
     }
 
     if (argType & MASK_MEM)
-        ptr = & ( spu->RAM[*ptr] );
+        ptr = & ( RAM[*ptr] );
 
     return ptr;
 }
@@ -193,4 +203,26 @@ void Paint (int* data, int x, int y)
         }
     putchar ('\n');
     }
+}
+
+SPU* CpuCtor (int* code)
+{
+    int* reg_massive = (int*) calloc (LEN_REG, sizeof (int));
+    int* op_mem = (int*) calloc (LEN_RAM, sizeof (int));
+    SPU* spu = (SPU*) calloc (1, sizeof (SPU));
+
+    spu->code = code;
+    spu->ip = 0;
+    spu->RAM = op_mem;
+    spu->reg = reg_massive;
+
+    return spu;
+}
+
+void CpuDtor (SPU* spu)
+{
+    free (spu->RAM); spu->RAM = NULL;
+    free (spu->reg); spu->reg = NULL;
+    free (spu->code); spu->code = NULL;
+    free (spu); spu = NULL;
 }

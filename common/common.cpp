@@ -30,11 +30,13 @@ void DumpMassive (int* data, int size)
     putchar ('\n');
 }
 
-void MyFread(const char* name, const char* mode, int* code)
+int* MyFread(const char* name, const char* mode)
 {
     FILE *file = MyFopen (name, mode);
-    fread (code, sizeof (int), len_code, file);
+    int* code = (int*) calloc (LEN_CODE, sizeof (int));
+    fread (code, sizeof (int), LEN_CODE, file);
     fclose (file);
+    return code;
 }
 
 

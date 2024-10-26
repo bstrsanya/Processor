@@ -2,6 +2,7 @@
 #define PRO_H
 
 #include "common.h"
+#include "stack.h"
 
 struct SPU {
     int ip;
@@ -10,8 +11,10 @@ struct SPU {
     int* code;
 };
 
-void Run (stack_t* stk, stack_t* stk_func, SPU *spu);
-int* GetArg (SPU *spu);
+void Run (stack_t* stk, stack_t* stk_func, SPU* spu);
+int* GetArg (int* reg, int* RAM, int* code, int* ip);
 void Paint (int* data, int x, int y);
+SPU* CpuCtor (int* code);
+void CpuDtor (SPU* spu);
 
 #endif
