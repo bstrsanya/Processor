@@ -3,7 +3,7 @@ FLAGS = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop
 all: built run
 
 built:
-	g++ -I./../Common ./*.cpp ./../Common/*.cpp -o ./main ${FLAGS}
+	g++ -I./Common ./Assembler/*.cpp ./Common/*.cpp -o ./main ${FLAGS}
 
 run:
-	./main ./../quadro.asm ./../quadro.bin $(FILE)
+	./main $(INPUT) $(OUTPUT) $(FILE)
