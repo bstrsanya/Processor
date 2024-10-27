@@ -6,7 +6,11 @@
 
 int main(int argc, const char *argv[]) 
 {
-    if (argc != 2) printf ("Incorrect number of arguments\n");
+    if (argc != 2) 
+    {
+        printf ("Incorrect number of arguments\n");
+        return 1;
+    }
 
     int* code = MyFread (argv[1], "rb"); // first argument command line
 
@@ -19,7 +23,7 @@ int main(int argc, const char *argv[])
     SPU* spu = CpuCtor (code);
     
     Run (&stk, &stk_func, spu);
-    
+
     CpuDtor (spu);
     FreeStack (&stk);
     FreeStack (&stk_func);

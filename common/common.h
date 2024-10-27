@@ -16,7 +16,7 @@ enum command
     OUT   = 105,
     MUL   = 106,
     POP   = 107, 
-    PUTC  = 120,
+    OUTC  = 120,
                   // прыжок, если
     JB    = 108,  // <
     JA    = 109,  // >
@@ -31,7 +31,7 @@ enum command
     IN    = 117,
     SQRT  = 118,
     DRAW  = 119,
-    HLT   = -1,
+    HLT   = -1
 };
 
 enum MASK
@@ -43,20 +43,16 @@ enum MASK
 
 enum nothing 
 {
-    AX    = 1,
-    BX    = 2,
-    CX    = 3,
-    DX    = 4,
     LABEL  = 120,
     ERR       = -2,
-    BAD_STR   = -3
+    WRONG_CMD   = -3
 };
 
 
 const int LEN_COMMAND = 30;
 const int LEN_LABELS  = 20;
 const int LEN_RAM     = 1225;
-const int LEN_REG     = 5;
+const int NUM_REG     = 5;
 const int SIZE_STACK  = 10;
 const int SQUARE      = 35;
 const int LEN_CODE    = 1000;

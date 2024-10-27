@@ -6,13 +6,14 @@
 
 FILE* MyFopen (const char* name, const char* mode) //TODO assert
 {
-    assert(name);
+    assert (name);
+    assert (mode);
 
     FILE* fname = fopen (name, mode);
     if (fname == NULL) 
     {
         printf ("Error open file: %s\n", name);
-        assert (0); //TODO not use assert in this place
+        
     }
     return fname;
 }

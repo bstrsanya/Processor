@@ -4,7 +4,8 @@
 
 #include "processor.h"
 
-void Run (stack_t* stk, stack_t* stk_func, SPU* spu)
+
+int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
 {
     int isEnd = 1;
     while (isEnd)
@@ -13,159 +14,112 @@ void Run (stack_t* stk, stack_t* stk_func, SPU* spu)
         switch (cmd) {
 
             case HLT: {
-                isEnd = 0;
-                break; }
+                isEnd = 0; }
+                break; 
 
             case PUSH: {
                 int* arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
                 StackPush (stk, *arg);
-                spu->reg[0] = 0;
-                break; }
+                spu->reg[0] = 0; }
+                break; 
 
-            case POP:
-            {
+            case POP: {
                 int a = 0; StackPop (stk, &a);
                 int *arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
-                *arg = a;
+                *arg = a; }
                 break;
-            }
 
-            case PUTC:
-            {
+            case OUTC: {
                 int a = 0; StackPop (stk, &a);
-                printf ("%c\n", a);    
+                printf ("%c\n", a); }  
                 break;           
-            }
 
             case IN: {
                 int a = 0;
                 scanf ("%d", &a);
-                StackPush (stk, a);
-                break; }
+                StackPush (stk, a); }
+                break; 
 
             case SQRT: {
                 int a = 0;
                 StackPop (stk, &a);
                 a = (int) sqrt (a);
-                StackPush (stk, a);
-                break; }
+                StackPush (stk, a); }
+                break; 
 
             case SUB: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
-                StackPush (stk, b - a);
-                break; }
+                StackPush (stk, b - a); }
+                break; 
 
             case ADD: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
-                StackPush (stk, a + b);
-                break; }
+                StackPush (stk, a + b); }
+                break; 
 
             case DIV: {
                 int a = 0; StackPop (stk, &a);
                 int b = 0; StackPop (stk, &b);
-                if (a == 0) printf ("DIV ON ZERO\n"); // TODO assert -> return 
-                else StackPush (stk, (int) b / a); 
-                break; }
+                if (a == 0) 
+                {
+                    printf ("DIV ON ZERO\n"); 
+                    return DIV_ZERO;
+                } 
+                else StackPush (stk, (int) b / a); }
+                break; 
 
             case OUT: {
                 int a = 0; StackPop (stk, &a);
-                printf ("%d\n", a);
-                break; }
-//OUTC %c
-// PUSH 67 PUSH 10 PUSH 43 outc outc outc -> "C +"
+                printf ("%d\n", a); }
+                break; 
 
             case MUL: {
                 int a = 0;
                 StackPop (stk, &a);
                 int b = 0;
                 StackPop (stk, &b);
-                StackPush (stk, (int) b * a);
-                break; }
+                StackPush (stk, (int) b * a); }
+                break; 
 
-            case JB: {
-                int a = 0; //TODO use define for jmp
-                StackPop (stk, &a);
-                int b = 0;
-                StackPop (stk, &b);
-                if (b < a) {
+            case JB:
+            case JA:
+            case JBE:
+            case JAE:
+            case JE:
+            case JNE:
+            case JMP: {
+                if (JumpOrNo (spu->code[spu->ip-1], stk))
+                {
                     int new_pointer = spu->code[(spu->ip)];
-                    (spu->ip) = new_pointer; }
-                else (spu->ip)++;
-                break; }
-
-            case JA: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
-                if (b > a) {
-                    int new_pointer = spu->code[(spu->ip)];
-                    (spu->ip) = new_pointer; }
-                else (spu->ip)++;
-                break; }
-
-            case JAE: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
-                if (b >= a) {
-                    int new_pointer = spu->code[(spu->ip)];
-                    (spu->ip) = new_pointer; }
-                else (spu->ip)++;
-                break; }
-
-            case JBE: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
-                if (b <= a) {
-                    int new_pointer = spu->code[(spu->ip)];
-                    (spu->ip) = new_pointer; }
-                else (spu->ip)++;
-                break; }
-
-            case JE: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
-                if (b == a) {
-                    int new_pointer = spu->code[(spu->ip)];
-                    (spu->ip) = new_pointer; }
-                else (spu->ip)++;
-                break; }
-
-            case JNE: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
-                if (b != a) {
-                    int new_pointer = spu->code[(spu->ip)];
-                    (spu->ip) = new_pointer; }
+                    (spu->ip) = new_pointer; 
+                }
                 else (spu->ip)++; }
-                break;
-
-            case JMP:  {
-                int new_pointer = spu->code[(spu->ip)];
-                (spu->ip) = new_pointer;
-                break; }
+                break; 
 
             case RET: {
                 int a = 0;
                 StackPop (stk_func, &a);
-                spu->ip = a;
-                break; }
+                spu->ip = a; }
+                break; 
 
             case CALL: {
                 StackPush (stk_func, spu->ip + 1);
-                spu->ip = spu->code[spu->ip];
-                break; }
+                spu->ip = spu->code[spu->ip]; }
+                break; 
 
             case DRAW: {
-                Paint (spu->RAM, SQUARE, SQUARE);
-                break; }
+                Paint (spu->RAM, SQUARE, SQUARE); }
+                break; 
 
             default: {
                 printf ("Syntax error: [%d]\n", cmd);
-                isEnd = 0;
-                break; }
+                return SNT_ERR; }
+                break; 
         }
     }
+    return RUN_OK;
 }
 
 int* GetArg (int* reg, int* RAM, int* code, int* ip)
@@ -207,7 +161,7 @@ void Paint (int* data, int x, int y)
 
 SPU* CpuCtor (int* code)
 {
-    int* reg_massive = (int*) calloc (LEN_REG, sizeof (int));
+    int* reg_massive = (int*) calloc (NUM_REG, sizeof (int));
     int* op_mem = (int*) calloc (LEN_RAM, sizeof (int));
     SPU* spu = (SPU*) calloc (1, sizeof (SPU));
 
@@ -225,4 +179,48 @@ void CpuDtor (SPU* spu)
     free (spu->reg); spu->reg = NULL;
     free (spu->code); spu->code = NULL;
     free (spu); spu = NULL;
+}
+
+int JumpOrNo (int jump, stack_t* stk)
+{
+    if (jump == JMP)
+        return 1;
+    else 
+    {
+        int a = 0; 
+        int b = 0;
+        StackPop (stk, &a);
+        StackPop (stk, &b);
+
+        switch (jump)
+        {
+            case JA:
+                if (b > a) return 1;
+                break;
+
+            case JAE:
+                if (b >= a) return 1;
+                break;
+
+            case JB:
+                if (b < a) return 1;
+                break;
+
+            case JBE:
+                if (b <= a) return 1;
+                break;
+                
+            case JE:
+                if (b == a) return 1;
+                break;
+
+            case JNE: 
+                if (b != a) return 1;
+                break;
+
+            default: 
+                return 0;
+        }
+    }
+    return 0;
 }
