@@ -1,3 +1,6 @@
 [submodule "Stack"]
 	path = Stack
 	url = https://github.com/bstrsanya/Stack
+[submodule "Pushkin_onegin"]
+	path = Pushkin_onegin
+	url = https://github.com/bstrsanya/Pushkin_onegin

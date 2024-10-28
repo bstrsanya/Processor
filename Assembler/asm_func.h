@@ -2,6 +2,8 @@
 #define FUNC_H
 
 #include "common.h"
+#include "ReadFile.h"
+#include "SizeFile.h"
 
 struct str_asm {
     int* code;

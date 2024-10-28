@@ -21,21 +21,28 @@ int main(int argc, const char *argv[])
         return 1;
     }
 
-    str_asm* asm_data = AsmCtor (file_input);
+    size_t size = 0;
+    char* massive = ReadFile (file_input, &size);
+    char s1[30] = "";
+    int d1 = 0;
+    sscanf (massive, "%s%n", s1, &d1);
+    printf ("%s = %d", s1, d1);
 
-    int code_err = DoubleCompilation (asm_data);
-    if (code_err != COMPL_OK) 
-    {
-        printf ("ERROR NUMBER: %d\n", code_err);
-        return code_err;
-    }
+    //str_asm* asm_data = AsmCtor (file_input);
 
-    fwrite (asm_data->code, sizeof (asm_data->code[0]), (size_t) asm_data->ip, file_output);
+    //int code_err = DoubleCompilation (asm_data);
+    // if (code_err != COMPL_OK) 
+    // {
+    //     printf ("ERROR NUMBER: %d\n", code_err);
+    //     return code_err;
+    // }
+
+    // fwrite (asm_data->code, sizeof (asm_data->code[0]), (size_t) asm_data->ip, file_output);
 
     fclose (file_input);
     fclose (file_output);
 
-    AsmDtor (asm_data);
+    // AsmDtor (asm_data);
     return 0;
 }
 
