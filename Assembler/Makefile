@@ -6,4 +6,4 @@ built:
 	g++ -I./Common -I./lib ./lib/*.cpp ./Assembler/*.cpp ./Common/*.cpp -o ./main ${FLAGS}
 
 run:
-	./main $(INPUT) $(OUTPUT) $(FILE)
+	./main $(INPUT) $(OUTPUT) 
