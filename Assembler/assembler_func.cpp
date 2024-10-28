@@ -7,14 +7,35 @@
 
 #include "asm_func.h"
 
-int ReadAsm (str_asm* asm_data) //TODO use onegin
+int ReadAsm (str_asm* asm_data)
 {
     while (1)
     {
         char cmd[LEN_COMMAND] = "";
-        if (fscanf (asm_data->file_input, "%s", cmd) == EOF) break;
+        int count = 0;
 
-        if (IsLabel (cmd) == RIGHT_LABEL) 
+        if (asm_data->ptr < asm_data->size_file)
+        {
+            sscanf (asm_data->array_code + asm_data->ptr, "%[^\r]%n", cmd, &count);
+        }
+        else break;
+
+        asm_data->ptr += count + 2;
+
+        char s1[LEN_COMMAND] = "";
+        char s2[LEN_COMMAND] = "";
+        char s3[LEN_COMMAND] = "";
+
+        sscanf (cmd, "%s %s %s", s1, s2, s3);
+        if (s1[0] == 0 && s2[0] == 0 && s3[0] == 0) continue; // пустая строка
+
+        if (s3[0] != 0)
+        {
+            printf ("[%s] - WRONG STR", s3);
+            return WRONG_STR;
+        }
+
+        if ((IsLabel (cmd) == RIGHT_LABEL) && (s2[0] == 0) && (s3[0] == 0))
         {
             PutLabel (asm_data->labels, &(asm_data->ip), cmd); 
         }
@@ -24,7 +45,7 @@ int ReadAsm (str_asm* asm_data) //TODO use onegin
         }
         else 
         {
-            int code_cmd = CompilationCommand (asm_data->code, &(asm_data->ip), cmd);
+            int code_cmd = CompilationCommand (asm_data->code, &(asm_data->ip), s1);
 
             switch (code_cmd) {
 
@@ -38,7 +59,7 @@ int ReadAsm (str_asm* asm_data) //TODO use onegin
                 case (JNE):
                 case (JMP):
                 case (CALL): {
-                    int code_err = WorkArg (asm_data);
+                    int code_err = WorkArg (asm_data, s2);
                     if (code_err != ARG_OK)
                         return code_err; }
                     break; 
@@ -109,17 +130,19 @@ int MyAtoi (char* str, int size)
 {
     for (int i = 0; i < size; i++) 
     {
-        if (isdigit (str[i])) return atoi (&str[i]);
+        if (isdigit (str[i]))
+        {
+            double digit = 0;
+            sscanf (&str[i], "%lf", &digit);
+            return (int) (digit * PRECISION);
+        }
     } 
 
     return NOT_NUMBER;
 }
 
-int WorkArg (str_asm* asm_data)
+int WorkArg (str_asm* asm_data, char* arg)
 {
-    char arg[LEN_COMMAND] = "";
-    fscanf (asm_data->file_input, "%s", arg);
-
     if (IsLabel (arg) == RIGHT_LABEL) 
     {
         if (FindLabel (arg, asm_data->code, &(asm_data->ip), asm_data->labels) == 0) 
@@ -182,7 +205,7 @@ int DoubleCompilation (str_asm* asm_data)
     int ret = ReadAsm (asm_data);
     if (ret != READ_OK) return ret;
 
-    if (fseek (asm_data->file_input, 0, SEEK_SET)) printf ("error fseek\n");
+    asm_data->ptr = 0;
     asm_data->ip = 0;
 
     ReadAsm (asm_data);
@@ -193,6 +216,7 @@ void AsmDtor (str_asm* asm_data)
 {
     free (asm_data->labels); asm_data->labels = NULL;
     free (asm_data->code); asm_data->code = NULL;
+    free (asm_data->array_code); asm_data->array_code = NULL;
     free (asm_data); asm_data = NULL;
 }
 
@@ -206,10 +230,15 @@ str_asm* AsmCtor (FILE* file_input)
     int* arr_code = (int*) calloc (LEN_CODE, sizeof (int));
     str_asm* asm_data = (str_asm*) calloc (1, sizeof (str_asm));
 
+    size_t size = 0;
+    char* massive = ReadFile (file_input, &size);
+
     asm_data->code = arr_code;
-    asm_data->file_input = file_input;
-    asm_data->ip = 0;
+    asm_data->array_code = massive;
+    asm_data->ptr = 0; // относится к array_code
+    asm_data->ip = 0; // относится к code
     asm_data->labels = labels;
+    asm_data->size_file = (int) size;
 
     return asm_data;
 }

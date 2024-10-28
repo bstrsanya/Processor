@@ -6,8 +6,8 @@
 
 struct SPU {
     int ip;
-    int* RAM;
-    int* reg;
+    double* RAM;
+    double* reg;
     int* code;
 };
 
@@ -20,8 +20,8 @@ enum ERRORS
 };
 
 int Run (stack_t* stk, stack_t* stk_func, SPU* spu);
-int* GetArg (int* reg, int* RAM, int* code, int* ip);
-void Paint (int* data, int x, int y);
+double* GetArg (double* reg, double* RAM, int* code, int* ip);
+void Paint (double* data, int x, int y);
 SPU* CpuCtor (int* code);
 void CpuDtor (SPU* spu);
 int JumpOrNo (int jump, stack_t* stk);

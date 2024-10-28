@@ -13,7 +13,7 @@ int main(int argc, const char *argv[])
     }
 
     int* code = MyFread (argv[1], "rb"); // first argument command line
-
+    // DumpMassive (code, 50);
     stack_t stk = {};
     StackCtor (&stk, SIZE_STACK);
 

@@ -6,6 +6,7 @@
 FILE* MyFopen (const char* name, const char* mode);
 void DumpMassive (int* data, int size);
 int* MyFread(const char* name, const char* mode);
+int CompareDouble (double argument_1, double argument_2);
 
 enum command
 {
@@ -45,7 +46,8 @@ enum nothing
 {
     LABEL  = 120,
     ERR       = -2,
-    WRONG_CMD   = -3
+    WRONG_CMD   = -3,
+    PRECISION = 1000
 };
 
 
@@ -56,6 +58,7 @@ const int NUM_REG     = 5;
 const int SIZE_STACK  = 10;
 const int SQUARE      = 35;
 const int LEN_CODE    = 1000;
+const double SMALL    = 10e-8;
 
 struct STR_labels {
     char name_label[LEN_COMMAND] = "";

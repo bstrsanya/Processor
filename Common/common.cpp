@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 
 #include "common.h"
 
@@ -40,4 +41,11 @@ int* MyFread(const char* name, const char* mode)
     return code;
 }
 
+int CompareDouble (double argument_1, double argument_2)
+{
+    if (fabs (argument_1 - argument_2) < SMALL)
+        return 1;
+    
+    return 0;
+}
 

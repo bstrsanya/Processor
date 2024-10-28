@@ -18,51 +18,51 @@ int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
                 break; 
 
             case PUSH: {
-                int* arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
-                StackPush (stk, *arg);
+                double* arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
+                StackPush (stk, *(arg));
                 spu->reg[0] = 0; }
                 break; 
 
             case POP: {
-                int a = 0; StackPop (stk, &a);
-                int *arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
+                double a = 0; StackPop (stk, &a);
+                double *arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
                 *arg = a; }
                 break;
 
             case OUTC: {
-                int a = 0; StackPop (stk, &a);
-                printf ("%c\n", a); }  
+                double a = 0; StackPop (stk, &a);
+                printf ("%c\n", (int) a); }  
                 break;           
 
             case IN: {
-                int a = 0;
-                scanf ("%d", &a);
+                double a = 0;
+                scanf ("%lf", &a);
                 StackPush (stk, a); }
                 break; 
 
             case SQRT: {
-                int a = 0;
+                double a = 0;
                 StackPop (stk, &a);
-                a = (int) sqrt (a);
+                a = sqrt (a);
                 StackPush (stk, a); }
                 break; 
 
             case SUB: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
+                double a = 0; StackPop (stk, &a);
+                double b = 0; StackPop (stk, &b);
                 StackPush (stk, b - a); }
                 break; 
 
             case ADD: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
+                double a = 0; StackPop (stk, &a);
+                double b = 0; StackPop (stk, &b);
                 StackPush (stk, a + b); }
                 break; 
 
             case DIV: {
-                int a = 0; StackPop (stk, &a);
-                int b = 0; StackPop (stk, &b);
-                if (a == 0) 
+                double a = 0; StackPop (stk, &a);
+                double b = 0; StackPop (stk, &b);
+                if (CompareDouble (a, 0)) 
                 {
                     printf ("DIV ON ZERO\n"); 
                     return DIV_ZERO;
@@ -71,14 +71,14 @@ int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
                 break; 
 
             case OUT: {
-                int a = 0; StackPop (stk, &a);
-                printf ("%d\n", a); }
+                double a = 0; StackPop (stk, &a);
+                printf ("%.3lf\n", a); }
                 break; 
 
             case MUL: {
-                int a = 0;
+                double a = 0;
                 StackPop (stk, &a);
-                int b = 0;
+                double b = 0;
                 StackPop (stk, &b);
                 StackPush (stk, (int) b * a); }
                 break; 
@@ -99,9 +99,9 @@ int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
                 break; 
 
             case RET: {
-                int a = 0;
+                double a = 0;
                 StackPop (stk_func, &a);
-                spu->ip = a; }
+                spu->ip = (int) a; }
                 break; 
 
             case CALL: {
@@ -122,35 +122,35 @@ int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
     return RUN_OK;
 }
 
-int* GetArg (int* reg, int* RAM, int* code, int* ip)
+double* GetArg (double* reg, double* RAM, int* code, int* ip)
 {
     int argType = code[(*ip)++];
-    int* ptr = reg;
+    double* ptr = reg;
 
     if (argType & MASK_CON)
-        *ptr = code[ (*ip)++ ];
+        *ptr = code[ (*ip)++ ] / PRECISION;
 
     if (argType & MASK_REG)
     {
-        if (*ptr == 0)
+        if (CompareDouble(*ptr, 0))
             {ptr = &(reg[ (code[(*ip)++]) ]); }
         else
             *ptr += reg[ (code[(*ip)++]) ];
     }
 
     if (argType & MASK_MEM)
-        ptr = & ( RAM[*ptr] );
+        ptr = & ( RAM[(int) *ptr] );
 
     return ptr;
 }
 
-void Paint (int* data, int x, int y)
+void Paint (double* data, int x, int y)
 {
     for (int i = 0; i < y; i++)
     {
         for (int j = 0; j < x; j++)
         {
-            if (data[y*i+j] == 0)
+            if (CompareDouble (data[y*i+j], 0))
                 printf ("%3c", '.');
             else
                 printf ("%3c", '0');
@@ -161,8 +161,8 @@ void Paint (int* data, int x, int y)
 
 SPU* CpuCtor (int* code)
 {
-    int* reg_massive = (int*) calloc (NUM_REG, sizeof (int));
-    int* op_mem = (int*) calloc (LEN_RAM, sizeof (int));
+    double* reg_massive = (double*) calloc (NUM_REG, sizeof (double));
+    double* op_mem = (double*) calloc (LEN_RAM, sizeof (double));
     SPU* spu = (SPU*) calloc (1, sizeof (SPU));
 
     spu->code = code;
@@ -187,8 +187,8 @@ int JumpOrNo (int jump, stack_t* stk)
         return 1;
     else 
     {
-        int a = 0; 
-        int b = 0;
+        double a = 0; 
+        double b = 0;
         StackPop (stk, &a);
         StackPop (stk, &b);
 
@@ -211,11 +211,11 @@ int JumpOrNo (int jump, stack_t* stk)
                 break;
                 
             case JE:
-                if (b == a) return 1;
+                if (CompareDouble(a, b)) return 1;
                 break;
 
             case JNE: 
-                if (b != a) return 1;
+                if (CompareDouble (a, b) == 0) return 1;
                 break;
 
             default: 
