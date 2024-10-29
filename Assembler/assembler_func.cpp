@@ -7,7 +7,7 @@
 
 #include "asm_func.h"
 
-#define ENDSTR(cmd, count) if ((int) cmd[count - 1] == 13) cmd[count - 1] = '\0';
+#define ENDSTR(cmd, count) if ((count != 0) && ((int) cmd[count - 1] == 13)) cmd[count - 1] = '\0';
 
 int ReadAsm (str_asm* asm_data)
 {
