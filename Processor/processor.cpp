@@ -4,15 +4,18 @@
 
 #include "processor.h"
 
+#define CHECK(arg, value, file, line) if (arg == value) {printf ("Errors %s:%d\n", file, line); return ERROR;}
+
 int main(int argc, const char *argv[]) 
 {
-    if (argc != 2) 
+    if (argc != argc_for_processor) 
     {
         printf ("Incorrect number of arguments\n");
-        return 1;
+        return ERROR;
     }
 
-    int* code = MyFread (argv[1], "rb"); // first argument command line
+    int* code = MyFread (argv[1], "rb", LEN_CODE); // first argument command line
+    CHECK (code, NULL, __FILE__, __LINE__);
     
     stack_t stk = {};
     StackCtor (&stk, SIZE_STACK);
@@ -21,6 +24,7 @@ int main(int argc, const char *argv[])
     StackCtor (&stk_func, SIZE_STACK);
 
     SPU* spu = CpuCtor (code);
+    CHECK (spu, NULL, __FILE__, __LINE__);
     
     Run (&stk, &stk_func, spu);
 

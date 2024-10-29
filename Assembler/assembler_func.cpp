@@ -7,6 +7,8 @@
 
 #include "asm_func.h"
 
+#define ENDSTR(cmd, count) if ((int) cmd[count - 1] == 13) cmd[count - 1] = '\0';
+
 int ReadAsm (str_asm* asm_data)
 {
     while (1)
@@ -16,11 +18,12 @@ int ReadAsm (str_asm* asm_data)
 
         if (asm_data->ptr < asm_data->size_file)
         {
-            sscanf (asm_data->array_code + asm_data->ptr, "%[^\r]%n", cmd, &count);
+            sscanf (asm_data->array_code + asm_data->ptr, "%[^\n]%n", cmd, &count);
+            ENDSTR (cmd, count);
         }
         else break;
 
-        asm_data->ptr += count + 2;
+        asm_data->ptr += count + 1;
 
         char s1[LEN_COMMAND] = "";
         char s2[LEN_COMMAND] = "";
@@ -74,7 +77,6 @@ int ReadAsm (str_asm* asm_data)
                 case SQRT:
                 case DRAW:
                 case HLT:
-                case ERR:
                 case OUTC:
                     break;
 
@@ -146,7 +148,7 @@ int WorkArg (str_asm* asm_data, char* arg)
     if (IsLabel (arg) == RIGHT_LABEL) 
     {
         if (FindLabel (arg, asm_data->code, &(asm_data->ip), asm_data->labels) == 0) 
-            asm_data->code[(asm_data->ip)++] = -1;
+            asm_data->code[(asm_data->ip)++] = EMPTY_LABEL;
     }
     else 
     {
@@ -220,15 +222,27 @@ void AsmDtor (str_asm* asm_data)
     free (asm_data); asm_data = NULL;
 }
 
-str_asm* AsmCtor (FILE* file_input)
+str_asm* AsmCtor (const char* argv)
 {
+    FILE *file_input  = fopen (argv, "rb");
+
+    if (file_input == NULL) 
+    {
+        printf ("The file could not be opened");
+        return NULL;
+    }
+
     STR_labels* labels = (STR_labels*) calloc (LEN_LABELS, sizeof (STR_labels));
+    if (labels == NULL) return NULL;
 
     for (int i = 0; i < LEN_LABELS; i++)
-        labels[i] = {};
+        labels[i]= {};
 
     int* arr_code = (int*) calloc (LEN_CODE, sizeof (int));
+    if (arr_code == NULL) return NULL;
+
     str_asm* asm_data = (str_asm*) calloc (1, sizeof (str_asm));
+    if (asm_data == NULL) return NULL;
 
     size_t size = 0;
     char* massive = ReadFile (file_input, &size);
@@ -239,6 +253,8 @@ str_asm* AsmCtor (FILE* file_input)
     asm_data->ip = 0; // относится к code
     asm_data->labels = labels;
     asm_data->size_file = (int) size;
+
+    fclose (file_input);
 
     return asm_data;
 }
@@ -290,4 +306,17 @@ void CreatCode (int* code, int* ip, int n_push, int im_const, int n_reg)
         code[(*ip)++] = im_const; 
     if (n_reg != 0) 
         code[(*ip)++] = n_reg;
+}
+
+int WriteFile (str_asm* asm_data, const char* argv)
+{
+    FILE *file_output = fopen (argv, "wb");  
+
+    if (fwrite (asm_data->code, sizeof (asm_data->code[0]), 
+        (size_t) asm_data->ip, file_output) != (size_t) asm_data->ip) 
+        return ERROR;
+
+    if (fclose (file_output) != 0) return ERROR;
+
+    return 0;
 }

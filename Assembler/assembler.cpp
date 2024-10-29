@@ -4,24 +4,19 @@
 
 #include "asm_func.h"
 
+#define CHECK(arg, value, file, line) if (arg == value) {printf ("Errors %s:%d\n", file, line); return ERROR;}
+
 int main(int argc, const char *argv[])
 {
-    if (argc != 3)
+    if (argc != argc_for_assembler)
     {
         printf ("Incorrect number of arguments\n");
-        return 1;
+        return ERROR;
     }
 
-    FILE *file_input  = fopen (argv[1], "rb");  // first argument command line
-    FILE *file_output = fopen (argv[2], "wb");  // second argument command line
+    str_asm* asm_data = AsmCtor (argv[1]);          // first argument command line
+    CHECK (asm_data, NULL,  __FILE__, __LINE__);
 
-    if (file_input == NULL || file_output == NULL) 
-    {
-        printf ("The file could not be opened");
-        return 1;
-    }
-
-    str_asm* asm_data = AsmCtor (file_input);
     int code_err = DoubleCompilation (asm_data);
     if (code_err != COMPL_OK) 
     {
@@ -29,10 +24,8 @@ int main(int argc, const char *argv[])
         return code_err;
     }
 
-    fwrite (asm_data->code, sizeof (asm_data->code[0]), (size_t) asm_data->ip, file_output);
-
-    fclose (file_input);
-    fclose (file_output);
+    int write_file = WriteFile (asm_data, argv[2]); // second argument command line
+    CHECK (write_file, ERROR, __FILE__, __LINE__);
 
     AsmDtor (asm_data);
     return 0;

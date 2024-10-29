@@ -1,14 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-
-
-FILE* MyFopen (const char* name, const char* mode);
 void DumpMassive (int* data, int size);
-int* MyFread(const char* name, const char* mode);
+int* MyFread(const char* name, const char* mode, int size);
 int CompareDouble (double argument_1, double argument_2);
 
-enum command
+enum COMMAND
 {
     PUSH  = 101,
     SUB   = 102,
@@ -42,15 +39,7 @@ enum MASK
     MASK_CON  = 0b0000'0001
 };
 
-enum nothing 
-{
-    LABEL  = 120,
-    ERR       = -2,
-    WRONG_CMD   = -3,
-    PRECISION = 1000
-};
-
-
+const int PRECISION   = 1000;
 const int LEN_COMMAND = 30;
 const int LEN_LABELS  = 20;
 const int LEN_RAM     = 1225;

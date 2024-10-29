@@ -5,20 +5,6 @@
 
 #include "common.h"
 
-FILE* MyFopen (const char* name, const char* mode) //TODO assert
-{
-    assert (name);
-    assert (mode);
-
-    FILE* fname = fopen (name, mode);
-    if (fname == NULL) 
-    {
-        printf ("Error open file: %s\n", name);
-        
-    }
-    return fname;
-}
-
 void DumpMassive (int* data, int size)
 {
     for (int i = 0; i < size; i++)
@@ -32,11 +18,15 @@ void DumpMassive (int* data, int size)
     putchar ('\n');
 }
 
-int* MyFread(const char* name, const char* mode)
+int* MyFread(const char* name, const char* mode, int size)
 {
-    FILE *file = MyFopen (name, mode);
-    int* code = (int*) calloc (LEN_CODE, sizeof (int));
-    fread (code, sizeof (int), LEN_CODE, file);
+    FILE *file = fopen (name, mode);
+    if (file == NULL) return NULL;
+
+    int* code = (int*) calloc ((size_t) size, sizeof (int));
+    if (code == NULL) return NULL;
+
+    fread (code, sizeof (int), size_t (size), file);
     fclose (file);
     return code;
 }
@@ -44,8 +34,8 @@ int* MyFread(const char* name, const char* mode)
 int CompareDouble (double argument_1, double argument_2)
 {
     if (fabs (argument_1 - argument_2) < SMALL)
-        return 1;
-    
-    return 0;
+        return true;
+         
+    return false;
 }
 

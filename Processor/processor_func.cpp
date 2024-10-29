@@ -4,17 +4,18 @@
 
 #include "processor.h"
 
+//#define Jump(spu) {spu->ip = spu->code[(spu->ip)]}
 
 int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
 {
-    int isEnd = 1;
+    int isEnd = true;
     while (isEnd)
     {
         int cmd = spu->code[(spu->ip)++];
         switch (cmd) {
 
             case HLT: {
-                isEnd = 0; }
+                isEnd = false; }
                 break; 
 
             case PUSH: {
@@ -24,13 +25,15 @@ int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
                 break; 
 
             case POP: {
-                double a = 0; StackPop (stk, &a);
+                double a = 0; 
+                StackPop (stk, &a);
                 double *arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip));
                 *arg = a; }
                 break;
 
             case OUTC: {
-                double a = 0; StackPop (stk, &a);
+                double a = 0; 
+                StackPop (stk, &a);
                 printf ("%c\n", (int) a); }  
                 break;           
 
@@ -48,30 +51,37 @@ int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
                 break; 
 
             case SUB: {
-                double a = 0; StackPop (stk, &a);
-                double b = 0; StackPop (stk, &b);
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
                 StackPush (stk, b - a); }
                 break; 
 
             case ADD: {
-                double a = 0; StackPop (stk, &a);
-                double b = 0; StackPop (stk, &b);
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
                 StackPush (stk, a + b); }
                 break; 
 
             case DIV: {
-                double a = 0; StackPop (stk, &a);
-                double b = 0; StackPop (stk, &b);
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
                 if (CompareDouble (a, 0)) 
                 {
                     printf ("DIV ON ZERO\n"); 
                     return DIV_ZERO;
                 } 
-                else StackPush (stk, (int) b / a); }
+                else StackPush (stk, b / a); }
                 break; 
 
             case OUT: {
-                double a = 0; StackPop (stk, &a);
+                double a = 0; 
+                StackPop (stk, &a);
                 printf ("%.3lf\n", a); }
                 break; 
 
@@ -83,19 +93,75 @@ int Run (stack_t* stk, stack_t* stk_func, SPU* spu)
                 StackPush (stk, (int) b * a); }
                 break; 
 
-            case JB:
-            case JA:
-            case JBE:
-            case JAE:
-            case JE:
-            case JNE:
+            case JB: {
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0;
+                StackPop (stk, &b);
+                if (b < a) 
+                    (spu->ip) = spu->code[(spu->ip)];
+                else 
+                    (spu->ip)++; }
+                break; 
+
+            case JA: {
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
+                if (b > a) 
+                    (spu->ip) = spu->code[(spu->ip)];
+                else 
+                    (spu->ip)++; }
+                break; 
+
+            case JAE: {
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
+                if (b >= a) 
+                    (spu->ip) = spu->code[(spu->ip)];
+                else 
+                    (spu->ip)++; }
+                break; 
+
+            case JBE: {
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
+                if (b <= a) 
+                    (spu->ip) = spu->code[(spu->ip)];
+                else 
+                    (spu->ip)++; }
+                break; 
+
+            case JE: {
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
+                if (CompareDouble (a, b)) 
+                     (spu->ip) = spu->code[(spu->ip)];
+                else 
+                    (spu->ip)++; }
+                break; 
+
+            case JNE: {
+                double a = 0; 
+                StackPop (stk, &a);
+                double b = 0; 
+                StackPop (stk, &b);
+                if (!CompareDouble (a, b)) 
+                    (spu->ip) = spu->code[(spu->ip)];
+                else 
+                    (spu->ip)++; }
+                break; 
+
             case JMP: {
-                if (JumpOrNo (spu->code[spu->ip-1], stk))
-                {
-                    int new_pointer = spu->code[(spu->ip)];
-                    (spu->ip) = new_pointer; 
-                }
-                else (spu->ip)++; }
+                int new_pointer = spu->code[(spu->ip)];
+                (spu->ip) = new_pointer; }
                 break; 
 
             case RET: {
@@ -162,8 +228,13 @@ void Paint (double* data, int x, int y)
 SPU* CpuCtor (int* code)
 {
     double* reg_massive = (double*) calloc (NUM_REG, sizeof (double));
+    if (reg_massive == NULL) return NULL;
+
     double* op_mem = (double*) calloc (LEN_RAM, sizeof (double));
+    if (op_mem == NULL) return NULL;
+
     SPU* spu = (SPU*) calloc (1, sizeof (SPU));
+    if (spu == NULL) return NULL;
 
     spu->code = code;
     spu->ip = 0;
@@ -179,48 +250,4 @@ void CpuDtor (SPU* spu)
     free (spu->reg); spu->reg = NULL;
     free (spu->code); spu->code = NULL;
     free (spu); spu = NULL;
-}
-
-int JumpOrNo (int jump, stack_t* stk)
-{
-    if (jump == JMP)
-        return 1;
-    else 
-    {
-        double a = 0; 
-        double b = 0;
-        StackPop (stk, &a);
-        StackPop (stk, &b);
-
-        switch (jump)
-        {
-            case JA:
-                if (b > a) return 1;
-                break;
-
-            case JAE:
-                if (b >= a) return 1;
-                break;
-
-            case JB:
-                if (b < a) return 1;
-                break;
-
-            case JBE:
-                if (b <= a) return 1;
-                break;
-                
-            case JE:
-                if (CompareDouble(a, b)) return 1;
-                break;
-
-            case JNE: 
-                if (CompareDouble (a, b) == 0) return 1;
-                break;
-
-            default: 
-                return 0;
-        }
-    }
-    return 0;
 }
