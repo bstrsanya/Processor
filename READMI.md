@@ -1,5 +1,6 @@
 # Processor & Assembler
 Assembler: .asm -> .bin Processor .bin -> result program
+![GitHub](https://github.com/bstrsanya/Processor)
 ***
 |Command|Description|
 |---|---|
@@ -23,7 +24,7 @@ Assembler: .asm -> .bin Processor .bin -> result program
 |JE| Jump if =|
 |JNE| Jump if !=|
 |JMP| Jump if always|
-***
+*** 
 
 
 
