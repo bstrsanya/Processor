@@ -5,32 +5,15 @@ void DumpMassive (int* data, int size);
 int* MyFread(const char* name, const char* mode, int size);
 int CompareDouble (double argument_1, double argument_2);
 
+#define DEF_CMD(name, num, code) name = num,
+
+
 enum COMMAND
 {
-    PUSH  = 101,
-    SUB   = 102,
-    ADD   = 103,
-    DIV   = 104,
-    OUT   = 105,
-    MUL   = 106,
-    POP   = 107, 
-    OUTC  = 120,
-                  // прыжок, если
-    JB    = 108,  // <
-    JA    = 109,  // >
-    JAE   = 110,  // >=
-    JBE   = 111,  // <=
-    JE    = 112,  // =
-    JNE   = 113,  // !=
-    JMP   = 114,  // прыжок всегда
-
-    CALL  = 115,
-    RET   = 116,
-    IN    = 117,
-    SQRT  = 118,
-    DRAW  = 119,
-    HLT   = -1
+    #include "commands.h"
 };
+
+#undef DEF_CMD
 
 enum MASK
 {

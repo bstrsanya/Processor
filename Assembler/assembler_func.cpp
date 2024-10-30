@@ -156,45 +156,22 @@ int WorkArg (str_asm* asm_data, char* arg)
         int n_reg    = 0;
         int im_const = MyAtoi (arg, (int) strlen (arg));
 
-        int code_err = CreatMask (arg, &n_push, &n_reg, &im_const);
+        int code_err = CreateMask (arg, &n_push, &n_reg, &im_const);
         if (code_err != RIGHT_MASK) return code_err;
 
-        CreatCode (asm_data->code, &(asm_data->ip), n_push, im_const, n_reg);
+        CreateCode (asm_data->code, &(asm_data->ip), n_push, im_const, n_reg);
     }
     return ARG_OK;
 }
    
 int CompilationCommand (int* code, int* ip, char* cmd)
 {
-    #define CHECK_(cmd, arg, code, ip)          \
-    do {                                        \
-        if (strcmp (cmd, #arg) == 0) {          \
-            code[(*ip)++] = arg; return arg;    \
-        }                                       \
-                                                \
-    } while(0)
+    #define DEF_CMD(name, num, code_func) \
+    {if (strcmp (cmd, #name) == 0) { code[(*ip)++] = name; return name;}}
 
-    CHECK_(cmd, PUSH, code, ip);
-    CHECK_(cmd, POP,  code, ip);
-    CHECK_(cmd, SUB,  code, ip);
-    CHECK_(cmd, ADD,  code, ip);
-    CHECK_(cmd, DIV,  code, ip);
-    CHECK_(cmd, OUT,  code, ip);
-    CHECK_(cmd, MUL,  code, ip);
-    CHECK_(cmd, JB,   code, ip);
-    CHECK_(cmd, JA,   code, ip);
-    CHECK_(cmd, JAE,  code, ip);
-    CHECK_(cmd, JBE,  code, ip);
-    CHECK_(cmd, JE,   code, ip);
-    CHECK_(cmd, JNE,  code, ip);
-    CHECK_(cmd, JMP,  code, ip);
-    CHECK_(cmd, HLT,  code, ip);
-    CHECK_(cmd, RET,  code, ip);
-    CHECK_(cmd, IN,   code, ip);
-    CHECK_(cmd, SQRT, code, ip);
-    CHECK_(cmd, DRAW, code, ip);
-    CHECK_(cmd, CALL, code, ip);
-    CHECK_(cmd, OUTC, code, ip);
+    #include "commands.h"
+    
+    #undef DEF_CMD
 
     printf ("syntax error - %s\n", cmd);
     return WRONG_CMD;
@@ -273,7 +250,7 @@ int IsLabel (char* arg)
         return NOT_LABEL;
 }
 
-int CreatMask (char* arg, int* n_push, int* n_reg, int* im_const)
+int CreateMask (char* arg, int* n_push, int* n_reg, int* im_const)
 {
     if ((strchr (arg, '[') != NULL) && (strchr (arg, ']') != NULL)) 
     {
@@ -299,7 +276,7 @@ int CreatMask (char* arg, int* n_push, int* n_reg, int* im_const)
     return RIGHT_MASK;
 }
 
-void CreatCode (int* code, int* ip, int n_push, int im_const, int n_reg)
+void CreateCode (int* code, int* ip, int n_push, int im_const, int n_reg)
 {
     code[(*ip)++] = n_push; 
     if (im_const != NOT_NUMBER) 

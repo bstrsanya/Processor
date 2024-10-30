@@ -29,8 +29,8 @@ int DoubleCompilation (str_asm* asm_data);
 str_asm* AsmCtor (const char* argv);
 void AsmDtor (str_asm* asm_data);
 int IsLabel (char* arg);
-int CreatMask (char* arg, int* n_push, int* n_reg, int* im_const);
-void CreatCode (int* code, int* ip, int n_push, int im_const, int n_reg);
+int CreateMask (char* arg, int* n_push, int* n_reg, int* im_const);
+void CreateCode (int* code, int* ip, int n_push, int im_const, int n_reg);
 int WriteFile (str_asm* asm_data, const char* argv);
 
 
