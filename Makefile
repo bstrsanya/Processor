@@ -1,7 +1,9 @@
-all: asmr pro
+all: built run
 
-asmr:
+built:
 	make -f ./Assembler/Makefile
-
-pro:
 	make -f ./Processor/Makefile
+
+run:
+	./asm $(INPUT) $(OUTPUT)
+	./pro $(OUTPUT)
