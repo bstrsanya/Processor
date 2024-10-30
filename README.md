@@ -1,7 +1,7 @@
 # Processor & Assembler
 Assembler: .asm -> .bin Processor .bin -> result program
 ***
-Starting Assembler: make asmr INPUT=<file_input> OUTPUT=<file_output> \n
+Starting Assembler: make asmr INPUT=<file_input> OUTPUT=<file_output> 
 Starting Processor: make pro  INPUT=<file_input>
 ***
 |Command|Description|
