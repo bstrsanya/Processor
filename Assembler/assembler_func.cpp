@@ -175,8 +175,6 @@ int CompilationCommand (int* code, int* ip, char* cmd)
 
     printf ("syntax error - %s\n", cmd);
     return WRONG_CMD;
-
-    #undef CHECK_
 }
 
 int DoubleCompilation (str_asm* asm_data)
