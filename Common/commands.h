@@ -1,7 +1,12 @@
 
-DEF_CMD(PUSH, 101, {double* arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip)); StackPush (stk, *(arg)); spu->reg[0] = 0; })
+DEF_CMD(PUSH, 101, {double* arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip)); 
+                    StackPush (stk, *(arg)); 
+                    spu->reg[0] = 0; })
 
-DEF_CMD(POP, 107, {double a = 0; StackPop (stk, &a); double *arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip)); *arg = a; } )
+DEF_CMD(POP, 107, {double a = 0; 
+                   StackPop (stk, &a); 
+                   double *arg = GetArg (spu->reg, spu->RAM, spu->code, &(spu->ip)); 
+                   *arg = a; })
 
 DEF_CMD(OUTC, 120, {double a = 0; 
                     StackPop (stk, &a);
@@ -17,64 +22,64 @@ DEF_CMD(SQRT, 118, {double a = 0;
                     StackPush (stk, a); })
 
 DEF_CMD(SUB, 102, {double a = 0; 
-                    StackPop (stk, &a);
-                    double b = 0; 
-                    StackPop (stk, &b);
-                    StackPush (stk, b - a); })
+                   StackPop (stk, &a);
+                   double b = 0; 
+                   StackPop (stk, &b);
+                   StackPush (stk, b - a); })
 
 DEF_CMD(ADD, 103, {double a = 0; 
-                    StackPop (stk, &a);
-                    double b = 0; 
-                    StackPop (stk, &b);
-                    StackPush (stk, a + b); })
+                   StackPop (stk, &a);
+                   double b = 0; 
+                   StackPop (stk, &b);
+                   StackPush (stk, a + b); })
 
 DEF_CMD(DIV, 104, {double a = 0; 
-                StackPop (stk, &a);
-                double b = 0; 
-                StackPop (stk, &b);
-                if (CompareDouble (a, 0)) 
-                {
-                    printf ("DIV ON ZERO\n"); 
-                    return DIV_ZERO;
-                } 
-                else StackPush (stk, b / a); })
+                   StackPop (stk, &a);
+                   double b = 0; 
+                   StackPop (stk, &b);
+                   if (CompareDouble (a, 0)) 
+                   {
+                       printf ("DIV ON ZERO\n"); 
+                       return DIV_ZERO;
+                   } 
+                   else StackPush (stk, b / a); })
 
 DEF_CMD(OUT, 105, {double a = 0; 
-                StackPop (stk, &a);
-                printf ("%.3lf\n", a); })
+                   StackPop (stk, &a);
+                   printf ("%.*lf\n", PRECISION, a); })
 
 DEF_CMD(MUL, 106, {double a = 0;
-                StackPop (stk, &a);
-                double b = 0;
-                StackPop (stk, &b);
-                StackPush (stk, (int) b * a); })
+                   StackPop (stk, &a);
+                   double b = 0;
+                   StackPop (stk, &b);
+                   StackPush (stk, (int) b * a); })
 
 DEF_CMD(JB, 108, {double a = 0; 
-                StackPop (stk, &a);
-                double b = 0;
-                StackPop (stk, &b);
-                if (b < a) 
-                    (spu->ip) = spu->code[(spu->ip)];
-                else 
-                    (spu->ip)++; })
+                  StackPop (stk, &a);
+                  double b = 0;
+                  StackPop (stk, &b);
+                  if (b < a) 
+                      (spu->ip) = spu->code[(spu->ip)];
+                  else 
+                      (spu->ip)++; })
 
 DEF_CMD(JA, 109, {double a = 0; 
-                StackPop (stk, &a);
-                double b = 0; 
-                StackPop (stk, &b);
-                if (b > a) 
-                    (spu->ip) = spu->code[(spu->ip)];
-                else 
-                    (spu->ip)++; })
+                  StackPop (stk, &a);
+                  double b = 0; 
+                  StackPop (stk, &b);
+                  if (b > a) 
+                      (spu->ip) = spu->code[(spu->ip)];
+                  else 
+                      (spu->ip)++; })
 
 DEF_CMD(JAE, 110, {double a = 0; 
-                StackPop (stk, &a);
-                double b = 0; 
-                StackPop (stk, &b);
-                if (b >= a) 
-                    (spu->ip) = spu->code[(spu->ip)];
-                else 
-                    (spu->ip)++; })
+                  StackPop (stk, &a);
+                  double b = 0; 
+                  StackPop (stk, &b);
+                  if (b >= a) 
+                      (spu->ip) = spu->code[(spu->ip)];
+                  else 
+                      (spu->ip)++; })
 
 DEF_CMD(JBE, 111, {double a = 0; 
                 StackPop (stk, &a);

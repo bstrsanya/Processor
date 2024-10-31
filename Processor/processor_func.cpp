@@ -31,12 +31,12 @@ double* GetArg (double* reg, double* RAM, int* code, int* ip)
     int argType = code[(*ip)++];
     double* ptr = reg;
 
-    if (argType & MASK_CON)
-        *ptr = code[ (*ip)++ ] / PRECISION;
+    if (argType & MASK_IMC)
+        *ptr = code[ (*ip)++ ] / (10 ^ PRECISION);
 
     if (argType & MASK_REG)
     {
-        if (CompareDouble(*ptr, 0))
+        if (CompareDouble (*ptr, 0))
             {ptr = &(reg[ (code[(*ip)++]) ]); }
         else
             *ptr += reg[ (code[(*ip)++]) ];

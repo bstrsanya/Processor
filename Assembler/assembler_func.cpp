@@ -136,7 +136,7 @@ int MyAtoi (char* str, int size)
         {
             double digit = 0;
             sscanf (&str[i], "%lf", &digit);
-            return (int) (digit * PRECISION);
+            return (int) (digit * (10 ^ PRECISION));
         }
     } 
 
@@ -267,10 +267,11 @@ int CreateMask (char* arg, int* n_push, int* n_reg, int* im_const)
     
     if (*im_const != NOT_NUMBER) 
     {
-        *n_push |= MASK_CON; 
+        *n_push |= MASK_IMC; 
     }
 
     if (*n_push == 0) return WRONG_ARG;
+    
     return RIGHT_MASK;
 }
 

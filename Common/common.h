@@ -19,10 +19,10 @@ enum MASK
 {
     MASK_MEM  = 0b0000'0100,
     MASK_REG  = 0b0000'0010,
-    MASK_CON  = 0b0000'0001
+    MASK_IMC  = 0b0000'0001
 };
 
-const int PRECISION   = 1000;
+const int PRECISION   = 3;
 const int LEN_COMMAND = 30;
 const int LEN_LABELS  = 20;
 const int LEN_RAM     = 1225;

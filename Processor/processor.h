@@ -12,8 +12,8 @@ struct SPU {
     int* code;
 };
 
-int const  RUN_OK            = 1;
-int const argc_for_processor = 2;
+const int RUN_OK             = 1;
+const int argc_for_processor = 2;
 
 int Run (stack_t* stk, stack_t* stk_func, SPU* spu);
 double* GetArg (double* reg, double* RAM, int* code, int* ip);
